@@ -6,7 +6,7 @@ from pyrogram.client import Client
 from src import app
 from pyrogram.types import Message
 
-from src.scrape import posts, scrape
+from src.scrape import scrape
 from src.models import Post
 from src import config
 from pyrogram import enums
@@ -40,7 +40,7 @@ Title: <b>{article.title}</b> | <a href="https://announcements.bybit.com{article
 <b>Dates</b>
     • Start Date: <b>{article.start_date}</b>
     • End Date: <b>{article.end_date}</b>
--------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 """
         return await messageOBJ.reply_text(
             # photo=post[0].thumbnail,
@@ -63,23 +63,29 @@ Title: <b>{article.title}</b> | <a href="https://announcements.bybit.com{article
     )
 
 
+global_posts = []
+
+
 async def main():
-    await scrape()
+    global global_posts
+    posts = await scrape()
     await app.start()
     prev_post = posts[0].title
-
     await send_message(posts[0])
+    global_posts = posts
 
     while True:
-        await scrape()
+        new_posts = await scrape()
         await asyncio.sleep(300)
 
-        if prev_post != posts[0].title:
-            await send_message(posts[0])
+        if prev_post != new_posts[0].title:
+            global_posts = new_posts
+            await send_message(new_posts[0])
 
 
 @app.on_message(filters.command(["last"], prefixes="/"))
 async def start(_, message: Message):
+
     args = message.text.split()[1:]
     if args:
         try:
@@ -93,9 +99,11 @@ async def start(_, message: Message):
                 text="Invalid Argument! Please provide valid arg between 1 & 8"
             )
 
-        await send_reply(messageOBJ=message, post=posts[:list_number], multi=True)
+        await send_reply(
+            messageOBJ=message, post=global_posts[:list_number], multi=True
+        )
     else:
-        await send_reply(messageOBJ=message, post=posts[:1])
+        await send_reply(messageOBJ=message, post=global_posts[:1])
 
 
 if __name__ == "__main__":
