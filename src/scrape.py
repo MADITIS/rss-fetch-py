@@ -22,22 +22,8 @@ async def scrape():
         if response.status_code == 200:
             html = response.text
             soup = BeautifulSoup(html, "html.parser")
-            # a_tags = soup.select(".article-list > a")
-
-            # for article in a_tags[:1]:
-            # print(a_tags)
-            # if a_tags:
-            # url_tag = a_tags[0]
-            # print(url_tag)
-            # url = f"https://announcements.bybit.com{url_tag.get("href")}"
-            # image_response = await client.get(url, timeout=30, headers=headers)
-            # print(image_response.text)
-            # image_soup = BeautifulSoup(image_response.text, "html.parser")
-            # print(image_soup.prettify())
             script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
             json_blob = json.loads(script_tag.get_text())
-            # asset = image_soup.find("div", class_="embedded-asset")
-            # print("asset", asset)
 
             json_data = json_blob["props"]["pageProps"]["articleInitEntity"]["list"]
             articles: List[Article] = [Article(**article) for article in json_data]

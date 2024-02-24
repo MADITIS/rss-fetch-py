@@ -2,13 +2,17 @@ from dotenv import dotenv_values
 from pydantic import ValidationError
 from src.models import Config
 from pyrogram.client import Client
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
+logger = logging.getLogger(__name__)
 config_dict = dotenv_values()
 try:
     config = Config(**config_dict)  # type: ignore
+    logger.info("Parsed Config!")
 except ValidationError as e:
-    print(f"One or more env vars are missing {e!s}")
+    logger.exception(f"One or more env vars are missing {e!s}")
 
 app = Client(
     name="rss",

@@ -72,7 +72,7 @@ async def main():
 
     while True:
         await scrape()
-        await asyncio.sleep(5)
+        await asyncio.sleep(300)
 
         if prev_post != posts[0].title:
             await send_message(posts[0])
