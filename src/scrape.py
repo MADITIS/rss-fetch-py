@@ -31,6 +31,8 @@ async def scrape():
             # return
             soup = BeautifulSoup(html, "html.parser")
             script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
+            if not script_tag:
+                return None
             json_blob = json.loads(script_tag.get_text())
 
             json_data = json_blob["props"]["pageProps"]["articleInitEntity"]["list"]

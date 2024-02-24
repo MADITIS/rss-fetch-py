@@ -70,15 +70,16 @@ async def main():
     global global_posts
     posts = await scrape()
     await app.start()
-    prev_post = posts[0].title
-    await send_message(posts[0])
-    global_posts = posts
+    if posts and posts != []:
+        prev_post = posts[0].title
+        await send_message(posts[0])
+        global_posts = posts
 
     while True:
-        new_posts = await scrape()
         await asyncio.sleep(300)
+        new_posts = await scrape()
 
-        if prev_post != new_posts[0].title:
+        if new_posts and new_posts != [] and prev_post != new_posts[0].title:
             global_posts = new_posts
             await send_message(new_posts[0])
 
@@ -86,24 +87,37 @@ async def main():
 @app.on_message(filters.command(["last"], prefixes="/"))
 async def start(_, message: Message):
 
-    args = message.text.split()[1:]
-    if args:
-        try:
-            list_number = int(args[0])
-            if list_number > 8:
+    if not global_posts and global_posts == []:
+        await message.reply_text(text="Server is busy! please try again later")
+
+    chat_member = await app.get_chat_member(
+        chat_id=message.chat.id, user_id=message.from_user.id
+    )
+
+    if chat_member.status in (
+        "ChatMemberStatus.OWNER",
+        "ChatMemberStatus.ADMINISTRATOR",
+    ):
+        args = message.text.split()[1:]
+        if args:
+            try:
+                list_number = int(args[0])
+                if list_number > 8:
+                    return await message.reply_text(
+                        text="Invalid Argument! Please provide valid arg between 1 & 8"
+                    )
+            except ValueError:
                 return await message.reply_text(
                     text="Invalid Argument! Please provide valid arg between 1 & 8"
                 )
-        except ValueError:
-            return await message.reply_text(
-                text="Invalid Argument! Please provide valid arg between 1 & 8"
-            )
 
-        await send_reply(
-            messageOBJ=message, post=global_posts[:list_number], multi=True
-        )
+            await send_reply(
+                messageOBJ=message, post=global_posts[:list_number], multi=True
+            )
+        else:
+            await send_reply(messageOBJ=message, post=global_posts[:1])
     else:
-        await send_reply(messageOBJ=message, post=global_posts[:1])
+        await message.reply_text(text="You are not authorized to use this command.")
 
 
 if __name__ == "__main__":
