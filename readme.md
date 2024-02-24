@@ -27,7 +27,7 @@ Version: 0.1.0
    group_id = group_id_to_send_rss
     ```
 
-    - Follow the instructions to create ```api_id``` & ```api_hash```.
+    - Follow the [instructions](https://core.telegram.org/api/obtaining_api_id) to create ```api_id``` & ```api_hash```.
     - Get the ```bot_token``` from [Botfather](https://t.me/BotFather) by creating a new bot.
 
 4. Run the app
