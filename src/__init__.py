@@ -12,7 +12,8 @@ try:
     config = Config(**config_dict)  # type: ignore
     logger.info("Parsed Config!")
 except ValidationError as e:
-    logger.exception(f"One or more env vars are missing {e!s}")
+    logger.error(f"One or more env vars are missing {e!s}")
+    exit(1)
 
 app = Client(
     name="rss",
